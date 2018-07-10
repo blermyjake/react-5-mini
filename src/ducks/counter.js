@@ -1,5 +1,7 @@
 const INCREMENT = 'INCREMENT';
 const DECREMENT = 'DECREMENT';
+const UNDO = 'UNDO';
+const REDO = 'REDO';
 
 // action creator
 export function increment(amt){
@@ -16,9 +18,23 @@ export function decrement(amt){
     };
 }
 
+export function undo(){
+    return{
+        type: UNDO
+    };
+}
+
+export function redo(){
+    return{
+        type: REDO
+    };
+}
+
 //initial state
 const initialState = {
-	currentValue: 0
+    currentValue: 0,
+    futureValues: [],
+    previousValues: []
 };
 
 // reducer
@@ -36,7 +52,21 @@ export default function counter(state = initialState, action){
                 ...state,
                 currentValue: state.currentValue - action.payload
             };
-    
+            case UNDO:
+            return {
+                currentValue: state.previousValues[ 0 ],
+                futureValues: [ state.currentValue, ...state.futureValues ],
+                previousValues: state.previousValues.slice( 1 )
+              };
+            case REDO:
+              return {
+                currentValue: state.futureValues[ 0 ],
+                futureValues: state.futureValues.slice( 1 ),
+                previousValues: [ state.currentValue, ...state.previousValues ]
+              };
+
+
+
     default:
         return state;
     
